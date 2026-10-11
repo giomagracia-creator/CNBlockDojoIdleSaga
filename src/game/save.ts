@@ -1,20 +1,26 @@
 import {
   HEROES,
+  RELICS,
   ROUTES,
   UPGRADES,
+  rollLevelLoot,
   upgradeCost,
+  xpToNext,
   type Cost,
-  type FruitId,
   type HeroId,
+  type LootDrop,
+  type RelicId,
   type RouteId,
   type UpgradeId,
 } from "./catalog.ts";
 
-const KEY = "block-dojo-v1";
+const KEY = "block-dojo-v2";
 
 export type SaveData = {
   gold: number;
-  fruit: Record<FruitId, number>;
+  level: number;
+  exp: number;
+  relics: RelicId[];
   upgrades: Record<UpgradeId, number>;
   unlockedHeroes: HeroId[];
   unlockedRoutes: RouteId[];
@@ -26,6 +32,7 @@ export type SaveData = {
   kills: number;
   lastSeen: number;
   watched: boolean;
+  pendingLoot: LootDrop[];
 };
 
 export type HeroStats = {
@@ -39,23 +46,12 @@ export type HeroStats = {
   crateGold: number;
 };
 
-function emptyFruit(): Record<FruitId, number> {
-  return {
-    apple: 0,
-    bananas: 0,
-    cherries: 0,
-    kiwi: 0,
-    melon: 0,
-    orange: 0,
-    pineapple: 0,
-    strawberry: 0,
-  };
-}
-
 function defaults(): SaveData {
   return {
     gold: 0,
-    fruit: emptyFruit(),
+    level: 1,
+    exp: 0,
+    relics: [],
     upgrades: {
       ironStomp: 0,
       fruitCake: 0,
@@ -74,6 +70,7 @@ function defaults(): SaveData {
     kills: 0,
     lastSeen: Date.now(),
     watched: false,
+    pendingLoot: [],
   };
 }
 
@@ -107,7 +104,13 @@ class Store {
         return;
       }
       const parsed = JSON.parse(raw) as Partial<SaveData>;
-      this.data = { ...defaults(), ...parsed, fruit: { ...emptyFruit(), ...parsed.fruit } };
+      this.data = {
+        ...defaults(),
+        ...parsed,
+        upgrades: { ...defaults().upgrades, ...parsed.upgrades },
+        relics: parsed.relics ?? [],
+        pendingLoot: parsed.pendingLoot ?? [],
+      };
       this.applyOffline();
     } catch {
       this.data = defaults();
@@ -123,39 +126,39 @@ class Store {
     const elapsed = Date.now() - (this.data.lastSeen || Date.now());
     const minutes = Math.min(25, elapsed / 60000);
     if (minutes < 0.4) return;
-    const gold = Math.floor(minutes * (3 + this.data.upgrades.ironStomp + this.data.upgrades.crateCrew));
-    const apples = Math.floor(minutes * 0.6);
-    this.data.gold += gold;
-    this.data.fruit.apple += apples;
+    this.data.gold += Math.floor(minutes * (4 + this.data.upgrades.crateCrew + this.data.level * 0.4));
+    this.addExp(Math.floor(minutes * (6 + this.data.level)), false);
   }
 
   stats(): HeroStats {
     const hero = HEROES[this.data.hero];
     const u = this.data.upgrades;
+    const lv = this.data.level - 1;
+    const relics = this.data.relics;
+    const count = (id: RelicId) => relics.filter((r) => r === id).length;
     return {
-      atk: Math.round((hero.atk + u.ironStomp * 2.2) * 10) / 10,
-      maxHp: Math.round(hero.hp + u.fruitCake * 6),
-      interval: Math.max(0.38, hero.interval - u.quickFeet * 0.045),
-      speed: hero.speed + u.quickFeet * 4,
-      crit: Math.min(0.45, hero.crit + u.luckyPeel * 0.035),
+      atk: Math.round((hero.atk + u.ironStomp * 2.2 + lv * 1.3 + count("ironCharm") * 2) * 10) / 10,
+      maxHp: Math.round(hero.hp + u.fruitCake * 6 + lv * 4 + count("heartSeed") * 6),
+      interval: Math.max(0.36, hero.interval - u.quickFeet * 0.045),
+      speed: hero.speed + u.quickFeet * 4 + count("swiftLeaf") * 6,
+      crit: Math.min(0.5, hero.crit + u.luckyPeel * 0.035 + count("luckyPit") * 0.04),
       farm: hero.farm + u.crateCrew * 0.08,
-      magnet: 18 + u.magnet * 10,
-      crateGold: 5 + u.crateCrew * 2,
+      magnet: 18 + u.magnet * 10 + count("magnetRind") * 8,
+      crateGold: 6 + u.crateCrew * 2 + count("coinBrand") * 2,
     };
   }
 
+  needXp(): number {
+    return xpToNext(this.data.level);
+  }
+
   canPay(cost: Cost): boolean {
-    if (cost.gold != null && this.data.gold < cost.gold) return false;
-    if (cost.fruit && cost.amount != null && this.data.fruit[cost.fruit] < cost.amount) {
-      return false;
-    }
-    return true;
+    return this.data.gold >= cost.gold;
   }
 
   pay(cost: Cost): boolean {
     if (!this.canPay(cost)) return false;
-    if (cost.gold != null) this.data.gold -= cost.gold;
-    if (cost.fruit && cost.amount != null) this.data.fruit[cost.fruit] -= cost.amount;
+    this.data.gold -= cost.gold;
     this.emit();
     return true;
   }
@@ -165,9 +168,27 @@ class Store {
     this.emit();
   }
 
-  addFruit(id: FruitId, n = 1): void {
-    this.data.fruit[id] += n;
+  addExp(n: number, emit = true): number {
+    this.data.exp += Math.max(0, Math.round(n));
+    let gained = 0;
+    while (this.data.exp >= xpToNext(this.data.level)) {
+      this.data.exp -= xpToNext(this.data.level);
+      this.data.level += 1;
+      this.data.pendingLoot.push(rollLevelLoot(this.data.level));
+      gained += 1;
+    }
+    if (emit) this.emit();
+    return gained;
+  }
+
+  collectLoot(drop: LootDrop): boolean {
+    const idx = this.data.pendingLoot.findIndex((d) => d.level === drop.level && d.relic === drop.relic && d.gold === drop.gold);
+    if (idx < 0) return false;
+    this.data.pendingLoot.splice(idx, 1);
+    this.data.gold += drop.gold;
+    this.data.relics.push(drop.relic);
     this.emit();
+    return true;
   }
 
   buyUpgrade(id: UpgradeId): boolean {
@@ -175,7 +196,7 @@ class Store {
     if (!def) return false;
     const cost = upgradeCost(def, this.data.upgrades[id]);
     if (!this.canPay(cost)) return false;
-    this.pay(cost);
+    this.data.gold -= cost.gold;
     this.data.upgrades[id] += 1;
     this.emit();
     return true;
@@ -184,10 +205,8 @@ class Store {
   unlockHero(id: HeroId): boolean {
     if (this.data.unlockedHeroes.includes(id)) return true;
     const cost = HEROES[id].unlock;
-    if (!this.canPay({ gold: cost.gold, fruit: cost.fruit, amount: cost.amount })) {
-      return false;
-    }
-    this.pay({ gold: cost.gold, fruit: cost.fruit, amount: cost.amount });
+    if (this.data.level < cost.level || !this.canPay({ gold: cost.gold })) return false;
+    this.data.gold -= cost.gold;
     this.data.unlockedHeroes.push(id);
     this.emit();
     return true;
@@ -202,9 +221,9 @@ class Store {
 
   unlockRoute(id: RouteId): boolean {
     if (this.data.unlockedRoutes.includes(id)) return true;
-    const gold = ROUTES[id].unlockGold;
-    if (!this.canPay({ gold })) return false;
-    this.pay({ gold });
+    const route = ROUTES[id];
+    if (this.data.level < route.unlockLevel || !this.canPay({ gold: route.unlockGold })) return false;
+    this.data.gold -= route.unlockGold;
     this.data.unlockedRoutes.push(id);
     this.emit();
     return true;
@@ -239,11 +258,11 @@ class Store {
   }
 
   formatCost(cost: Cost): string {
-    if (cost.gold != null) return `${cost.gold}g`;
-    if (cost.fruit && cost.amount != null) {
-      return `${cost.amount} ${cost.fruit}`;
-    }
-    return "free";
+    return `${cost.gold}g`;
+  }
+
+  relicName(id: RelicId): string {
+    return RELICS[id].name;
   }
 }
 

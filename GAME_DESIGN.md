@@ -14,7 +14,8 @@ Visual language comes from [Pixel Frog Pixel Adventure 1 + 2](https://github.com
 | --- | --- |
 | Title | **Block Dojo** |
 | Death | **Never die.** Empty HP is a knockdown, then they get up and keep running. |
-| Attention | **Sit and watch.** The side-scroller is the toy. Menus are a drawer over a live stage. |
+| Attention | **Sit and watch.** The side-scroller is the toy. Menus are a floating scroll with APPLY. |
+| Loot | Fruit heals HP. Crates pay coins. Monsters grant XP and level-up chests. |
 | Mix | **50/50** farm and fight. Blocks/fruit and monster packs share the route. |
 
 ---

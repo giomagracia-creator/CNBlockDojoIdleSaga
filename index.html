@@ -13,20 +13,26 @@
         <header id="hud">
           <div class="hud-left">
             <span class="chip gold" id="gold-chip"><span class="dot"></span><span id="gold-count">0</span></span>
-            <span class="chip" id="stripe-chip">STRIPE <span id="stripe-count">0</span></span>
+            <span class="chip lv" id="lv-chip">LV <span id="lv-count">1</span></span>
           </div>
-          <div class="hud-fruits" id="fruit-row"></div>
+          <div class="hud-xp">
+            <div class="xp-track"><div id="xp-fill"></div></div>
+            <span id="xp-label">0 / 48 XP</span>
+          </div>
           <div class="hud-right">
             <span class="chip hp" id="hp-chip">HP <span id="hp-count">20</span></span>
+            <button class="icon-btn" id="btn-menu" type="button" hidden aria-label="Open scroll">
+              <img src="/assets/ui/levels.png" alt="" />
+            </button>
           </div>
         </header>
 
         <section id="title-card" class="card">
-          <p class="eyebrow">PIXEL TRAINING HALL</p>
+          <p class="eyebrow">ADVENTURE RPG</p>
           <h1>BLOCK DOJO</h1>
           <p class="lede">
-            Sit on the mat. Your student runs, smashes training blocks, and stomps whatever
-            steps onto the path. You only spend the loot.
+            Sit on the mat. Fruit heals. Crates pay coins. Monsters grant experience.
+            Level-ups open tribute chests. You only seal changes on the scroll.
           </p>
           <div class="title-actions">
             <button class="pix-btn" id="btn-play" type="button">
@@ -35,39 +41,56 @@
             </button>
             <button class="pix-btn ghost" id="btn-title-settings" type="button">
               <img src="/assets/ui/settings.png" alt="" />
-              <span>SOUND</span>
+              <span>SCROLL</span>
             </button>
           </div>
         </section>
 
-        <section id="drawer" class="drawer" hidden>
-          <div class="drawer-head">
-            <h2 id="drawer-title">Workshop</h2>
-            <button class="icon-btn" id="btn-drawer-close" type="button" aria-label="Close">
+        <section id="menu-card" class="card float-card" hidden>
+          <div class="card-head">
+            <div>
+              <p class="eyebrow" id="card-rank">Novice</p>
+              <h2 id="card-title">Dojo Scroll</h2>
+            </div>
+            <button class="icon-btn" id="btn-card-close" type="button" aria-label="Close">
               <img src="/assets/ui/close.png" alt="" />
             </button>
           </div>
-          <div id="drawer-body"></div>
+          <nav id="card-tabs" class="card-tabs">
+            <button data-panel="scroll" type="button" class="active">Scroll</button>
+            <button data-panel="workshop" type="button">Workshop</button>
+            <button data-panel="heroes" type="button">Heroes</button>
+            <button data-panel="routes" type="button">Routes</button>
+            <button data-panel="settings" type="button">Sound</button>
+          </nav>
+          <div id="card-body" class="card-body"></div>
+          <footer class="card-foot">
+            <p id="draft-note" class="note">No unsealed changes.</p>
+            <button class="pix-btn" id="btn-apply" type="button" disabled>
+              <img src="/assets/ui/play.png" alt="" />
+              <span>APPLY</span>
+            </button>
+          </footer>
         </section>
 
-        <nav id="dock" hidden>
-          <button data-panel="workshop" type="button">
-            <img src="/assets/items/box1/idle.png" alt="" />
-            <span>Workshop</span>
-          </button>
-          <button data-panel="heroes" type="button">
-            <img src="/assets/ui/achievements.png" alt="" />
-            <span>Heroes</span>
-          </button>
-          <button data-panel="routes" type="button">
-            <img src="/assets/ui/levels.png" alt="" />
-            <span>Routes</span>
-          </button>
-          <button data-panel="settings" type="button">
-            <img src="/assets/ui/settings.png" alt="" />
-            <span>Sound</span>
-          </button>
-        </nav>
+        <section id="loot-card" class="card float-card loot-card" hidden>
+          <p class="eyebrow">LEVEL UP</p>
+          <h2 id="loot-title">Tribute Chest</h2>
+          <div id="loot-stage" class="loot-stage">
+            <img id="loot-chest" src="/assets/items/box1/idle.png" alt="" />
+          </div>
+          <div id="loot-haul" class="loot-haul" hidden></div>
+          <div class="title-actions">
+            <button class="pix-btn" id="btn-open-chest" type="button">
+              <img src="/assets/items/box1/idle.png" alt="" />
+              <span>OPEN</span>
+            </button>
+            <button class="pix-btn" id="btn-collect" type="button" hidden>
+              <img src="/assets/ui/play.png" alt="" />
+              <span>COLLECT</span>
+            </button>
+          </div>
+        </section>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

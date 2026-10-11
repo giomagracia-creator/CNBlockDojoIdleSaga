@@ -3,6 +3,7 @@ import { audio } from "../audio.ts";
 import { heroAnim } from "../assets.ts";
 import {
   ENEMIES,
+  FRUIT_HEAL,
   GROUND_Y,
   ROUTES,
   STRIPE_EVERY,
@@ -254,12 +255,6 @@ export class DojoScene extends Phaser.Scene {
     this.float(`+${gold}g`, actor.sprite.x, actor.sprite.y - 16, "#f2c14e");
     audio.crate();
     audio.coin();
-    const route = ROUTES[this.routeId];
-    if (Math.random() < 0.85) {
-      const fruit = route.fruits[Math.floor(Math.random() * route.fruits.length)] ?? "apple";
-      store.addFruit(fruit, 1);
-      this.float(`+1`, actor.sprite.x + 8, actor.sprite.y - 24, "#f4efe4");
-    }
     this.time.delayedCall(220, () => this.dropActor(actor));
   }
 
@@ -280,16 +275,12 @@ export class DojoScene extends Phaser.Scene {
   private killEnemy(actor: Actor): void {
     actor.dead = true;
     const def = actor.enemyId ? ENEMIES[actor.enemyId] : null;
-    const gold = Math.round((def?.gold ?? 4) * this.stats.farm);
-    store.addGold(gold);
+    const xp = Math.round((def?.exp ?? 8) * (0.85 + this.stats.farm * 0.15));
     store.addKill();
-    this.float(`+${gold}g`, actor.sprite.x, actor.sprite.y - 20, "#f2c14e");
-    audio.coin();
-    const route = ROUTES[this.routeId];
-    if (Math.random() < 0.35) {
-      const fruit = route.fruits[Math.floor(Math.random() * route.fruits.length)] ?? "apple";
-      store.addFruit(fruit, 1);
-    }
+    const dinged = store.addExp(xp);
+    this.float(`+${xp} XP`, actor.sprite.x, actor.sprite.y - 20, "#9ad7ff");
+    audio.xp();
+    if (dinged > 0) this.celebrateLevel();
     this.tweens.add({
       targets: actor.sprite,
       alpha: 0,
@@ -363,10 +354,12 @@ export class DojoScene extends Phaser.Scene {
 
   private takeFruit(actor: Actor): void {
     actor.dead = true;
-    if (actor.fruit) store.addFruit(actor.fruit, 1);
-    this.hp = Math.min(this.maxHp, this.hp + 1);
+    const heal = actor.fruit ? FRUIT_HEAL[actor.fruit] : 4;
+    const before = this.hp;
+    this.hp = Math.min(this.maxHp, this.hp + heal);
+    const gained = Math.round(this.hp - before);
     audio.fruit();
-    this.float("+1", actor.sprite.x, actor.sprite.y - 12, "#b6f29a");
+    this.float(gained > 0 ? `+${gained} HP` : "FULL", actor.sprite.x, actor.sprite.y - 12, "#b6f29a");
     if (actor.sprite instanceof Phaser.GameObjects.Sprite && this.anims.exists("fruit-collected")) {
       actor.sprite.play("fruit-collected");
       actor.sprite.once("animationcomplete", () => this.dropActor(actor));
@@ -378,13 +371,26 @@ export class DojoScene extends Phaser.Scene {
   private hitStripe(actor: Actor): void {
     actor.dead = true;
     store.addStripe();
-    store.addGold(18);
-    const fruit = ROUTES[this.routeId].fruits[0] ?? "apple";
-    store.addFruit(fruit, 2);
+    const dinged = store.addExp(12 + store.data.level);
     audio.stripe();
     this.burst(actor.sprite.x, GROUND_Y - 24, "fx-confetti");
-    this.float("STRIPE", actor.sprite.x, GROUND_Y - 40, "#f2c14e");
+    this.float("STRIPE +XP", actor.sprite.x, GROUND_Y - 40, "#9ad7ff");
+    if (dinged > 0) this.celebrateLevel();
     this.time.delayedCall(400, () => this.dropActor(actor));
+  }
+
+  private celebrateLevel(): void {
+    this.maxHp = this.stats.maxHp;
+    this.hp = this.maxHp;
+    this.playHero("spin");
+    this.burst(this.heroX, this.heroY - 20, "fx-confetti");
+    this.float(`LEVEL ${store.data.level}!`, this.heroX, this.heroY - 52, "#f2c14e");
+    audio.levelUp();
+    this.cameras.main.flash(180, 255, 230, 120);
+    this.game.events.emit("level-up", { level: store.data.level });
+    this.time.delayedCall(420, () => {
+      if (this.state === "run") this.playHero("run");
+    });
   }
 
   private hurtHero(atk: number): void {

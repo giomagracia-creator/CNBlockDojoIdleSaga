@@ -218,6 +218,36 @@ export class AudioEngine {
     this.tone(this.sfxDest()!, G * 2, "square", t + 0.2, 0.1, 0.07);
     this.tone(this.sfxDest()!, C * 4, "triangle", t + 0.3, 0.22, 0.08);
   }
+
+  xp(): void {
+    if (!this.ctx || !this.sfxDest()) return;
+    this.tone(this.sfxDest()!, 740, "triangle", this.ctx.currentTime, 0.05, 0.04);
+  }
+
+  applySeal(): void {
+    if (!this.ctx || !this.sfxDest()) return;
+    const t = this.ctx.currentTime;
+    this.tone(this.sfxDest()!, G, "square", t, 0.06, 0.06);
+    this.tone(this.sfxDest()!, C * 2, "square", t + 0.07, 0.1, 0.07);
+  }
+
+  chest(): void {
+    if (!this.ctx || !this.sfxDest()) return;
+    this.crate();
+    this.coin();
+  }
+
+  levelUp(): void {
+    if (!this.ctx || !this.sfxDest() || !this.musicGain) return;
+    const t = this.ctx.currentTime;
+    const dest = this.sfxDest()!;
+    this.tone(dest, C * 2, "square", t, 0.12, 0.08);
+    this.tone(dest, E * 2, "square", t + 0.12, 0.12, 0.08);
+    this.tone(dest, G * 2, "square", t + 0.24, 0.12, 0.08);
+    this.tone(dest, C * 4, "triangle", t + 0.36, 0.28, 0.1);
+    this.tone(dest, E * 4, "triangle", t + 0.48, 0.22, 0.07);
+    this.tone(this.musicGain, C, "triangle", t, 0.4, 0.04);
+  }
 }
 
 export const audio = new AudioEngine();

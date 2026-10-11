@@ -27,7 +27,15 @@ export type UpgradeId =
   | "magnet"
   | "crateCrew";
 
-export type Cost = { gold?: number; fruit?: FruitId; amount?: number };
+export type RelicId =
+  | "ironCharm"
+  | "heartSeed"
+  | "swiftLeaf"
+  | "luckyPit"
+  | "magnetRind"
+  | "coinBrand";
+
+export type Cost = { gold: number };
 
 export type HeroDef = {
   id: HeroId;
@@ -40,7 +48,7 @@ export type HeroDef = {
   speed: number;
   crit: number;
   farm: number;
-  unlock: { gold: number; fruit?: FruitId; amount?: number };
+  unlock: { gold: number; level: number };
 };
 
 export type RouteDef = {
@@ -53,6 +61,7 @@ export type RouteDef = {
   topTile: number;
   fillTile: number;
   unlockGold: number;
+  unlockLevel: number;
   music: "grove" | "orchard" | "hollow";
 };
 
@@ -62,7 +71,7 @@ export type EnemyDef = {
   atk: number;
   interval: number;
   speed: number;
-  gold: number;
+  exp: number;
   ranged: boolean;
   frameW: number;
   frameH: number;
@@ -76,10 +85,20 @@ export type UpgradeDef = {
   id: UpgradeId;
   name: string;
   blurb: string;
-  goldBase?: number;
-  fruit?: FruitId;
-  fruitBase?: number;
+  goldBase: number;
   growth: number;
+};
+
+export type RelicDef = {
+  id: RelicId;
+  name: string;
+  blurb: string;
+};
+
+export type LootDrop = {
+  level: number;
+  gold: number;
+  relic: RelicId;
 };
 
 export const FRUIT_ORDER: FruitId[] = [
@@ -105,7 +124,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     speed: 76,
     crit: 0.08,
     farm: 1,
-    unlock: { gold: 0 },
+    unlock: { gold: 0, level: 1 },
   },
   frog: {
     id: "frog",
@@ -118,7 +137,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     speed: 92,
     crit: 0.18,
     farm: 1.35,
-    unlock: { gold: 80, fruit: "bananas", amount: 8 },
+    unlock: { gold: 80, level: 3 },
   },
   pink: {
     id: "pink",
@@ -131,7 +150,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
     speed: 64,
     crit: 0.06,
     farm: 0.9,
-    unlock: { gold: 140, fruit: "apple", amount: 10 },
+    unlock: { gold: 140, level: 6 },
   },
 };
 
@@ -146,6 +165,7 @@ export const ROUTES: Record<RouteId, RouteDef> = {
     topTile: 7,
     fillTile: 29,
     unlockGold: 0,
+    unlockLevel: 1,
     music: "grove",
   },
   orchard: {
@@ -158,6 +178,7 @@ export const ROUTES: Record<RouteId, RouteDef> = {
     topTile: 183,
     fillTile: 205,
     unlockGold: 40,
+    unlockLevel: 2,
     music: "orchard",
   },
   hollow: {
@@ -170,6 +191,7 @@ export const ROUTES: Record<RouteId, RouteDef> = {
     topTile: 95,
     fillTile: 117,
     unlockGold: 100,
+    unlockLevel: 5,
     music: "hollow",
   },
 };
@@ -181,7 +203,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 3,
     interval: 1.15,
     speed: 28,
-    gold: 4,
+    exp: 8,
     ranged: false,
     frameW: 44,
     frameH: 30,
@@ -194,7 +216,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 4,
     interval: 1.25,
     speed: 24,
-    gold: 5,
+    exp: 10,
     ranged: false,
     frameW: 32,
     frameH: 32,
@@ -208,7 +230,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 4,
     interval: 1.7,
     speed: 0,
-    gold: 6,
+    exp: 12,
     ranged: true,
     frameW: 44,
     frameH: 42,
@@ -223,7 +245,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 5,
     interval: 1.05,
     speed: 34,
-    gold: 6,
+    exp: 13,
     ranged: false,
     frameW: 36,
     frameH: 30,
@@ -237,7 +259,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 4,
     interval: 0.95,
     speed: 40,
-    gold: 6,
+    exp: 12,
     ranged: false,
     frameW: 34,
     frameH: 44,
@@ -251,7 +273,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 4,
     interval: 1.1,
     speed: 32,
-    gold: 6,
+    exp: 13,
     ranged: false,
     frameW: 30,
     frameH: 38,
@@ -265,7 +287,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 5,
     interval: 1.45,
     speed: 14,
-    gold: 8,
+    exp: 18,
     ranged: false,
     frameW: 38,
     frameH: 24,
@@ -279,7 +301,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 6,
     interval: 1.8,
     speed: 18,
-    gold: 9,
+    exp: 20,
     ranged: true,
     frameW: 64,
     frameH: 32,
@@ -294,7 +316,7 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     atk: 6,
     interval: 1.3,
     speed: 22,
-    gold: 8,
+    exp: 18,
     ranged: false,
     frameW: 38,
     frameH: 34,
@@ -314,11 +336,10 @@ export const UPGRADES: UpgradeDef[] = [
   },
   {
     id: "fruitCake",
-    name: "Fruit Cake",
+    name: "Heartwood",
     blurb: "A denser student. More hits before a knockdown.",
-    fruit: "apple",
-    fruitBase: 5,
-    growth: 1.32,
+    goldBase: 16,
+    growth: 1.34,
   },
   {
     id: "quickFeet",
@@ -331,27 +352,46 @@ export const UPGRADES: UpgradeDef[] = [
     id: "luckyPeel",
     name: "Lucky Peel",
     blurb: "The hop lands on a seam. Crits more often.",
-    fruit: "cherries",
-    fruitBase: 4,
+    goldBase: 20,
     growth: 1.36,
   },
   {
     id: "magnet",
     name: "Fruit Magnet",
-    blurb: "Snacks drift toward the student.",
-    fruit: "kiwi",
-    fruitBase: 4,
+    blurb: "Healing snacks drift toward the student.",
+    goldBase: 14,
     growth: 1.4,
   },
   {
     id: "crateCrew",
     name: "Block Crew",
-    blurb: "Training posts spill more gold when they split.",
-    fruit: "bananas",
-    fruitBase: 5,
+    blurb: "Training posts spill more coins when they split.",
+    goldBase: 16,
     growth: 1.34,
   },
 ];
+
+export const RELICS: Record<RelicId, RelicDef> = {
+  ironCharm: { id: "ironCharm", name: "Iron Charm", blurb: "+2 attack" },
+  heartSeed: { id: "heartSeed", name: "Heart Seed", blurb: "+6 max HP" },
+  swiftLeaf: { id: "swiftLeaf", name: "Swift Leaf", blurb: "+6 run speed" },
+  luckyPit: { id: "luckyPit", name: "Lucky Pit", blurb: "+4% crit" },
+  magnetRind: { id: "magnetRind", name: "Magnet Rind", blurb: "+8 fruit pull" },
+  coinBrand: { id: "coinBrand", name: "Coin Brand", blurb: "+2 coins per crate" },
+};
+
+export const RELIC_IDS = Object.keys(RELICS) as RelicId[];
+
+export const FRUIT_HEAL: Record<FruitId, number> = {
+  apple: 5,
+  bananas: 4,
+  cherries: 6,
+  kiwi: 5,
+  strawberry: 4,
+  orange: 6,
+  melon: 9,
+  pineapple: 12,
+};
 
 export const TERRAIN_COLUMNS = 22;
 export const VIEW_W = 384;
@@ -360,12 +400,27 @@ export const GROUND_Y = 184;
 export const STRIPE_EVERY = 2200;
 
 export function upgradeCost(def: UpgradeDef, level: number): Cost {
-  const mul = def.growth ** level;
-  if (def.goldBase != null) {
-    return { gold: Math.floor(def.goldBase * mul) };
-  }
+  return { gold: Math.floor(def.goldBase * def.growth ** level) };
+}
+
+export function xpToNext(level: number): number {
+  return Math.floor(28 + level * 16 + level * level * 4);
+}
+
+export function rankFor(level: number): string {
+  if (level >= 16) return "Grandmaster";
+  if (level >= 12) return "Master";
+  if (level >= 8) return "Sensei";
+  if (level >= 5) return "Adept";
+  if (level >= 3) return "Disciple";
+  return "Novice";
+}
+
+export function rollLevelLoot(level: number): LootDrop {
+  const relic = RELIC_IDS[Math.floor(Math.random() * RELIC_IDS.length)] ?? "ironCharm";
   return {
-    fruit: def.fruit,
-    amount: Math.max(1, Math.floor((def.fruitBase ?? 4) * mul)),
+    level,
+    gold: 10 + level * 5 + Math.floor(Math.random() * 9),
+    relic,
   };
 }

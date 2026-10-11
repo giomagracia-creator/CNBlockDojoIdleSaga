@@ -1,8 +1,8 @@
 # Block Dojo
 
-A watch-only side-scrolling auto-battle and auto-farm game. Your student runs an endless route, smashes training blocks, picks fruit, and stomps Pixel Frog creatures. You never steer. You only spend loot from the drawer menus.
+A watch-only side-scrolling adventure RPG. Your student runs an endless route, smashes training blocks, eats fruit, and stomps Pixel Frog creatures. You never steer. Fruit heals. Crates pay coins. Kills grant experience. Level-ups open tribute chests.
 
-The stage never stops. A knockdown is just a knockdown — nobody dies.
+Menus are a floating scroll over the live stage. Queue changes, then press **APPLY** so nothing is lost. The stage never stops. A knockdown is just a knockdown.
 
 ## Play locally
 
@@ -16,10 +16,11 @@ Then open [http://127.0.0.1:4721](http://127.0.0.1:4721). Press **Watch** once s
 ## How it works
 
 - **Watch** — Mask Dude (or a later student) auto-runs the current route.
-- **Farm** — fruit snacks and wooden training blocks.
-- **Fight** — auto-stomps. Plants and trunks shoot back.
-- **Workshop / Heroes / Routes / Sound** — the only things you click. Drawers cover the lower third; the mat keeps moving.
-- Progress saves in `localStorage`. A short offline snack of gold and apples waits if you leave.
+- **Fruit** — heals HP.
+- **Crates** — drop coins.
+- **Monsters** — grant XP. Level-ups play a fanfare and open a loot chest.
+- **Scroll** — floating card. Queue workshop arts, heroes, routes, and sound, then **APPLY**.
+- Progress saves in `localStorage`.
 
 Routes in this slice: Green Grove, Pink Orchard, Brown Hollow. Students: Mask Dude, Ninja Frog, Pink Man.
 
