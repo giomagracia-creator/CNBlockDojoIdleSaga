@@ -32,7 +32,6 @@ export type SaveData = {
   kills: number;
   lastSeen: number;
   watched: boolean;
-  pendingLoot: LootDrop[];
 };
 
 export type HeroStats = {
@@ -70,7 +69,6 @@ function defaults(): SaveData {
     kills: 0,
     lastSeen: Date.now(),
     watched: false,
-    pendingLoot: [],
   };
 }
 
@@ -109,7 +107,6 @@ class Store {
         ...parsed,
         upgrades: { ...defaults().upgrades, ...parsed.upgrades },
         relics: parsed.relics ?? [],
-        pendingLoot: parsed.pendingLoot ?? [],
       };
       this.applyOffline();
     } catch {
@@ -168,27 +165,19 @@ class Store {
     this.emit();
   }
 
-  addExp(n: number, emit = true): number {
+  addExp(n: number, emit = true): LootDrop[] {
     this.data.exp += Math.max(0, Math.round(n));
-    let gained = 0;
+    const loot: LootDrop[] = [];
     while (this.data.exp >= xpToNext(this.data.level)) {
       this.data.exp -= xpToNext(this.data.level);
       this.data.level += 1;
-      this.data.pendingLoot.push(rollLevelLoot(this.data.level));
-      gained += 1;
+      const drop = rollLevelLoot(this.data.level);
+      this.data.gold += drop.gold;
+      this.data.relics.push(drop.relic);
+      loot.push(drop);
     }
     if (emit) this.emit();
-    return gained;
-  }
-
-  collectLoot(drop: LootDrop): boolean {
-    const idx = this.data.pendingLoot.findIndex((d) => d.level === drop.level && d.relic === drop.relic && d.gold === drop.gold);
-    if (idx < 0) return false;
-    this.data.pendingLoot.splice(idx, 1);
-    this.data.gold += drop.gold;
-    this.data.relics.push(drop.relic);
-    this.emit();
-    return true;
+    return loot;
   }
 
   buyUpgrade(id: UpgradeId): boolean {

@@ -36,9 +36,10 @@ const draftNote = () => document.getElementById("draft-note") as HTMLElement;
 let openPanel: Panel = "scroll";
 let menuOpen = false;
 let draft = snapshotDraft();
-let openedLoot: LootDrop | null = null;
 let sealedMusic = store.data.music;
 let sealedSfx = store.data.sfx;
+let haul: LootDrop[] = [];
+let haulTimer = 0;
 
 function snapshotDraft(): Draft {
   return {
@@ -103,16 +104,13 @@ export function mountShell(instance: Phaser.Game): void {
     audio.click();
     renderMenu();
   });
-  document.getElementById("btn-open-chest")?.addEventListener("click", openChest);
-  document.getElementById("btn-collect")?.addEventListener("click", collectLoot);
-
   store.on(renderHud);
   instance.events.on("dojo-hp", (info: { hp: number; max: number }) => {
     const hp = document.getElementById("hp-count");
     if (hp) hp.textContent = `${info.hp}/${info.max}`;
   });
-  instance.events.on("level-up", () => {
-    showLoot();
+  instance.events.on("level-up", (info: { loot?: LootDrop[] }) => {
+    showLoot(info.loot ?? []);
   });
   instance.events.on("dojo-ready", () => {
     syncOverlay();
@@ -121,7 +119,6 @@ export function mountShell(instance: Phaser.Game): void {
       menuBtn().hidden = false;
       audio.unlock();
       audio.startTheme(ROUTES[store.data.route].music);
-      if (store.data.pendingLoot.length) showLoot();
     }
   });
   renderHud();
@@ -365,55 +362,31 @@ function applyDraft(): void {
   paintDraft();
 }
 
-function showLoot(): void {
-  const drop = store.data.pendingLoot[0];
-  if (!drop) return;
-  openedLoot = null;
+function showLoot(drops: LootDrop[]): void {
+  if (!drops.length) return;
+  haul = haul.concat(drops);
   menuCard().hidden = true;
   menuOpen = false;
   lootCard().hidden = false;
+  const levels = haul.map((d) => d.level);
   const title = document.getElementById("loot-title");
-  if (title) title.textContent = `Level ${drop.level} Tribute`;
-  const chest = document.getElementById("loot-chest") as HTMLImageElement;
-  chest.src = "/assets/items/box1/idle.png";
-  chest.classList.remove("open");
-  const haul = document.getElementById("loot-haul") as HTMLElement;
-  haul.hidden = true;
-  const open = document.getElementById("btn-open-chest") as HTMLButtonElement;
-  const collect = document.getElementById("btn-collect") as HTMLButtonElement;
-  open.hidden = false;
-  collect.hidden = true;
-}
-
-function openChest(): void {
-  const drop = store.data.pendingLoot[0];
-  if (!drop) return;
-  openedLoot = drop;
-  audio.chest();
+  if (title) {
+    title.textContent = levels.length === 1 ? `Level ${levels[0]} opened` : `Levels ${levels.join(" · ")} opened`;
+  }
   const chest = document.getElementById("loot-chest") as HTMLImageElement;
   chest.src = "/assets/items/box1/break.png";
   chest.classList.add("open");
-  const haul = document.getElementById("loot-haul") as HTMLElement;
-  haul.hidden = false;
-  haul.innerHTML = `<div>+${drop.gold} coins</div><div>${RELICS[drop.relic].name} — ${RELICS[drop.relic].blurb}</div>`;
-  (document.getElementById("btn-open-chest") as HTMLButtonElement).hidden = true;
-  (document.getElementById("btn-collect") as HTMLButtonElement).hidden = false;
-}
-
-function collectLoot(): void {
-  const drop = openedLoot ?? store.data.pendingLoot[0];
-  if (!drop) return;
-  if (!store.collectLoot(drop)) {
-    audio.deny();
-    return;
-  }
-  audio.applySeal();
-  openedLoot = null;
-  if (store.data.pendingLoot.length) {
-    showLoot();
-    return;
-  }
-  lootCard().hidden = true;
+  const list = document.getElementById("loot-haul") as HTMLElement;
+  list.hidden = false;
+  list.innerHTML = haul
+    .map((drop) => `<div>+${drop.gold} coins · ${RELICS[drop.relic].name} — ${RELICS[drop.relic].blurb}</div>`)
+    .join("");
+  audio.chest();
+  window.clearTimeout(haulTimer);
+  haulTimer = window.setTimeout(() => {
+    lootCard().hidden = true;
+    haul = [];
+  }, 2800);
 }
 
 function renderHud(): void {
@@ -427,9 +400,6 @@ function renderHud(): void {
   if (xpLabel) xpLabel.textContent = `${store.data.exp} / ${need} XP`;
   if (fill) fill.style.width = `${Math.min(100, (store.data.exp / need) * 100)}%`;
   if (menuOpen) renderMenu();
-  if (!lootCard().hidden && !store.data.pendingLoot.length && !openedLoot) {
-    lootCard().hidden = true;
-  }
 }
 
 export function syncOverlay(): void {

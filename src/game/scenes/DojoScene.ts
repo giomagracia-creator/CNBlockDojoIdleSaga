@@ -277,10 +277,10 @@ export class DojoScene extends Phaser.Scene {
     const def = actor.enemyId ? ENEMIES[actor.enemyId] : null;
     const xp = Math.round((def?.exp ?? 8) * (0.85 + this.stats.farm * 0.15));
     store.addKill();
-    const dinged = store.addExp(xp);
+    const loot = store.addExp(xp);
     this.float(`+${xp} XP`, actor.sprite.x, actor.sprite.y - 20, "#9ad7ff");
     audio.xp();
-    if (dinged > 0) this.celebrateLevel();
+    if (loot.length) this.celebrateLevel(loot);
     this.tweens.add({
       targets: actor.sprite,
       alpha: 0,
@@ -371,15 +371,15 @@ export class DojoScene extends Phaser.Scene {
   private hitStripe(actor: Actor): void {
     actor.dead = true;
     store.addStripe();
-    const dinged = store.addExp(12 + store.data.level);
+    const loot = store.addExp(12 + store.data.level);
     audio.stripe();
     this.burst(actor.sprite.x, GROUND_Y - 24, "fx-confetti");
     this.float("STRIPE +XP", actor.sprite.x, GROUND_Y - 40, "#9ad7ff");
-    if (dinged > 0) this.celebrateLevel();
+    if (loot.length) this.celebrateLevel(loot);
     this.time.delayedCall(400, () => this.dropActor(actor));
   }
 
-  private celebrateLevel(): void {
+  private celebrateLevel(loot: { level: number; gold: number; relic: string }[]): void {
     this.maxHp = this.stats.maxHp;
     this.hp = this.maxHp;
     this.playHero("spin");
@@ -387,7 +387,7 @@ export class DojoScene extends Phaser.Scene {
     this.float(`LEVEL ${store.data.level}!`, this.heroX, this.heroY - 52, "#f2c14e");
     audio.levelUp();
     this.cameras.main.flash(180, 255, 230, 120);
-    this.game.events.emit("level-up", { level: store.data.level });
+    this.game.events.emit("level-up", { level: store.data.level, loot });
     this.time.delayedCall(420, () => {
       if (this.state === "run") this.playHero("run");
     });
