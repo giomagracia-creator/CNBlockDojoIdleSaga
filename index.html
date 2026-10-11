@@ -3,13 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/assets/ui/play.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Block Dojo</title>
   </head>
   <body>
     <div id="app">
-      <div id="game"></div>
-      <div id="overlay" hidden>
+      <div id="stage">
+        <div id="frame">
+          <div id="game"></div>
+          <div id="overlay" hidden>
         <header id="hud">
           <div class="hud-left">
             <span class="chip gold" id="gold-chip"><span class="dot"></span><span id="gold-count">0</span></span>
@@ -73,14 +75,13 @@
           </footer>
         </section>
 
-        <section id="loot-card" class="card float-card loot-card" hidden>
+        <section id="loot-card" class="loot-toast" hidden>
           <p class="eyebrow">LEVEL UP</p>
           <h2 id="loot-title">Tribute opened</h2>
-          <div id="loot-stage" class="loot-stage">
-            <img id="loot-chest" src="/assets/items/box1/break.png" alt="" />
-          </div>
           <div id="loot-haul" class="loot-haul"></div>
         </section>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

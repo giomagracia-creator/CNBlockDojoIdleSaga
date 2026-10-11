@@ -23,8 +23,9 @@
 html,
 body {
   margin: 0;
+  width: 100%;
   height: 100%;
-  background: #120c18;
+  background: #07050c;
   color: var(--paper);
   font-family: Thaleah, ui-monospace, monospace;
   overflow: hidden;
@@ -32,12 +33,29 @@ body {
 
 #app {
   position: relative;
-  width: 100%;
-  height: 100%;
-  background: #120c18;
+  width: 100vw;
+  height: 100vh;
+  background: #07050c;
 }
 
-#game {
+#stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#frame {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  background: #120c18;
+  box-shadow: 0 0 0 3px #2a1f18;
+}
+
+#game,
+#overlay {
   position: absolute;
   inset: 0;
 }
@@ -47,7 +65,6 @@ body {
 }
 
 #overlay {
-  position: absolute;
   pointer-events: none;
   z-index: 4;
 }
@@ -149,8 +166,9 @@ body {
 }
 
 .float-card {
-  top: 52%;
-  max-height: min(78%, 560px);
+  top: 50%;
+  width: min(520px, 72%);
+  max-height: 78%;
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -195,8 +213,8 @@ body {
 
 .card-body {
   overflow: auto;
-  min-height: 120px;
-  max-height: 42vh;
+  min-height: 80px;
+  max-height: 46%;
   padding-right: 2px;
 }
 
@@ -359,73 +377,34 @@ input[type="range"] {
   margin: 0;
 }
 
-.loot-card {
+.loot-toast {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  transform: translate(-50%, 0);
+  width: min(420px, 56%);
+  max-height: 28%;
+  overflow: auto;
+  background: var(--panel);
+  border: 3px solid #8a6a3d;
+  box-shadow: 0 0 0 3px #2a1f18;
+  padding: 8px 12px;
   text-align: center;
+  pointer-events: none !important;
 }
 
-.loot-stage {
-  display: flex;
-  justify-content: center;
-  padding: 16px 0;
-}
-
-#loot-chest {
-  width: 56px;
-  height: 48px;
-  image-rendering: pixelated;
-  animation: bob 0.8s ease-in-out infinite;
-}
-
-#loot-chest.open {
-  animation: none;
+.loot-toast h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
 }
 
 .loot-haul {
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--paper);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .flash-seal {
   color: var(--mint) !important;
-}
-
-@media (max-width: 640px) {
-  .card {
-    top: 50%;
-    padding: 12px 10px;
-    width: 96%;
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-
-  .card-tabs button {
-    font-size: 9px;
-  }
-
-  .card-body {
-    max-height: 38vh;
-  }
-
-  .card-foot {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .card-foot .pix-btn {
-    justify-content: center;
-  }
 }

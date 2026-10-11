@@ -40,6 +40,7 @@ let sealedMusic = store.data.music;
 let sealedSfx = store.data.sfx;
 let haul: LootDrop[] = [];
 let haulTimer = 0;
+let haulStarted = 0;
 
 function snapshotDraft(): Draft {
   return {
@@ -78,6 +79,7 @@ function queuedGold(): number {
 
 export function mountShell(instance: Phaser.Game): void {
   overlay().hidden = false;
+  lootCard().hidden = true;
   syncOverlay();
   window.addEventListener("resize", syncOverlay);
   instance.scale.on("resize", syncOverlay);
@@ -130,6 +132,7 @@ function startWatching(): void {
   store.markWatched();
   titleCard().hidden = true;
   menuBtn().hidden = false;
+  hideLoot();
   audio.click();
 }
 
@@ -362,31 +365,32 @@ function applyDraft(): void {
   paintDraft();
 }
 
+function hideLoot(): void {
+  window.clearTimeout(haulTimer);
+  haulTimer = 0;
+  haulStarted = 0;
+  haul = [];
+  lootCard().hidden = true;
+}
+
 function showLoot(drops: LootDrop[]): void {
   if (!drops.length) return;
+  if (!haulStarted) haulStarted = Date.now();
   haul = haul.concat(drops);
-  menuCard().hidden = true;
-  menuOpen = false;
   lootCard().hidden = false;
   const levels = haul.map((d) => d.level);
   const title = document.getElementById("loot-title");
   if (title) {
     title.textContent = levels.length === 1 ? `Level ${levels[0]} opened` : `Levels ${levels.join(" · ")} opened`;
   }
-  const chest = document.getElementById("loot-chest") as HTMLImageElement;
-  chest.src = "/assets/items/box1/break.png";
-  chest.classList.add("open");
   const list = document.getElementById("loot-haul") as HTMLElement;
-  list.hidden = false;
   list.innerHTML = haul
     .map((drop) => `<div>+${drop.gold} coins · ${RELICS[drop.relic].name} — ${RELICS[drop.relic].blurb}</div>`)
     .join("");
   audio.chest();
+  const remaining = Math.max(350, 2000 - (Date.now() - haulStarted));
   window.clearTimeout(haulTimer);
-  haulTimer = window.setTimeout(() => {
-    lootCard().hidden = true;
-    haul = [];
-  }, 2800);
+  haulTimer = window.setTimeout(hideLoot, remaining);
 }
 
 function renderHud(): void {
@@ -403,15 +407,9 @@ function renderHud(): void {
 }
 
 export function syncOverlay(): void {
-  const canvas = document.querySelector("#game canvas") as HTMLCanvasElement | null;
   const layer = overlay();
-  if (!canvas) {
-    layer.style.inset = "0";
-    return;
-  }
-  const rect = canvas.getBoundingClientRect();
-  layer.style.left = `${rect.left}px`;
-  layer.style.top = `${rect.top}px`;
-  layer.style.width = `${rect.width}px`;
-  layer.style.height = `${rect.height}px`;
+  layer.style.left = "0";
+  layer.style.top = "0";
+  layer.style.width = "100%";
+  layer.style.height = "100%";
 }
