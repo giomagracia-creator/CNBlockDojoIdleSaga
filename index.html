@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/assets/ui/play.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Block Dojo</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="game"></div>
+      <div id="overlay" hidden>
+        <header id="hud">
+          <div class="hud-left">
+            <span class="chip gold" id="gold-chip"><span class="dot"></span><span id="gold-count">0</span></span>
+            <span class="chip" id="stripe-chip">STRIPE <span id="stripe-count">0</span></span>
+          </div>
+          <div class="hud-fruits" id="fruit-row"></div>
+          <div class="hud-right">
+            <span class="chip hp" id="hp-chip">HP <span id="hp-count">20</span></span>
+          </div>
+        </header>
+
+        <section id="title-card" class="card">
+          <p class="eyebrow">PIXEL TRAINING HALL</p>
+          <h1>BLOCK DOJO</h1>
+          <p class="lede">
+            Sit on the mat. Your student runs, smashes training blocks, and stomps whatever
+            steps onto the path. You only spend the loot.
+          </p>
+          <div class="title-actions">
+            <button class="pix-btn" id="btn-play" type="button">
+              <img src="/assets/ui/play.png" alt="" />
+              <span>WATCH</span>
+            </button>
+            <button class="pix-btn ghost" id="btn-title-settings" type="button">
+              <img src="/assets/ui/settings.png" alt="" />
+              <span>SOUND</span>
+            </button>
+          </div>
+        </section>
+
+        <section id="drawer" class="drawer" hidden>
+          <div class="drawer-head">
+            <h2 id="drawer-title">Workshop</h2>
+            <button class="icon-btn" id="btn-drawer-close" type="button" aria-label="Close">
+              <img src="/assets/ui/close.png" alt="" />
+            </button>
+          </div>
+          <div id="drawer-body"></div>
+        </section>
+
+        <nav id="dock" hidden>
+          <button data-panel="workshop" type="button">
+            <img src="/assets/items/box1/idle.png" alt="" />
+            <span>Workshop</span>
+          </button>
+          <button data-panel="heroes" type="button">
+            <img src="/assets/ui/achievements.png" alt="" />
+            <span>Heroes</span>
+          </button>
+          <button data-panel="routes" type="button">
+            <img src="/assets/ui/levels.png" alt="" />
+            <span>Routes</span>
+          </button>
+          <button data-panel="settings" type="button">
+            <img src="/assets/ui/settings.png" alt="" />
+            <span>Sound</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
