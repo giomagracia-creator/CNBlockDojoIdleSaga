@@ -90,7 +90,9 @@ export function mountShell(instance: Phaser.Game): void {
     startWatching();
     openMenu("settings");
   });
-  document.getElementById("btn-card-close")?.addEventListener("click", () => {
+  document.getElementById("btn-card-close")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     audio.click();
     closeMenu(false);
   });
@@ -148,6 +150,7 @@ function openMenu(panel: Panel): void {
 function closeMenu(keepDraft: boolean): void {
   menuOpen = false;
   menuCard().hidden = true;
+  menuCard().setAttribute("hidden", "");
   if (!keepDraft) {
     store.data.music = sealedMusic;
     store.data.sfx = sealedSfx;

@@ -259,17 +259,10 @@ export class DojoScene extends Phaser.Scene {
   }
 
   private stompEnemy(actor: Actor): void {
-    const crit = Math.random() < this.stats.crit;
-    const dmg = Math.max(1, Math.round(this.stats.atk * (crit ? 1.8 : 1)));
-    actor.hp = (actor.hp ?? 1) - dmg;
     this.flash(actor.sprite);
-    this.float(crit ? `${dmg}!` : `${dmg}`, actor.sprite.x, actor.sprite.y - 18, crit ? "#f2c14e" : "#fff4e0");
+    this.float("KO", actor.sprite.x, actor.sprite.y - 18, "#f2c14e");
     audio.hit();
-    if (actor.sprite instanceof Phaser.GameObjects.Sprite && actor.enemyId) {
-      const hit = ENEMIES[actor.enemyId].hitKey;
-      if (this.anims.exists(hit)) actor.sprite.play(hit);
-    }
-    if ((actor.hp ?? 0) <= 0) this.killEnemy(actor);
+    this.killEnemy(actor);
   }
 
   private killEnemy(actor: Actor): void {
