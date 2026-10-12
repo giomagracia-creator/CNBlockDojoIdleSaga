@@ -67,7 +67,7 @@ Chunks ahead of the camera alternate **farm** and **fight** so half the watch ti
 | Settings | Volume, Close | Music / SFX sliders |
 | HUD | fruit icons + HP | Read-only. The movie stays on screen. |
 
-The floating scroll fills about **75%** of the stage so kids can read the type. The student keeps running behind it.
+The floating scroll fills about **75%** of a locked **16:9 computer/TV** stage so kids can read the type. The student keeps running behind it. Shop prizes live in a scrolling list under the wallet; CONFIRM BUY is always on screen.
 
 ---
 

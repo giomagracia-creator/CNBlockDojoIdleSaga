@@ -15,6 +15,7 @@ import {
   type UpgradeId,
 } from "../game/catalog.ts";
 import { store } from "../game/save.ts";
+import { fitComputerFrame } from "./layout.ts";
 
 type Panel = "scroll" | "shop" | "workshop" | "heroes" | "routes" | "settings";
 
@@ -89,9 +90,12 @@ function queuedGold(): number {
 export function mountShell(instance: Phaser.Game): void {
   overlay().hidden = false;
   lootCard().hidden = true;
-  syncOverlay();
-  window.addEventListener("resize", syncOverlay);
-  instance.scale.on("resize", syncOverlay);
+  const layout = () => {
+    fitComputerFrame(instance);
+    syncOverlay();
+  };
+  layout();
+  window.addEventListener("resize", layout);
 
   document.getElementById("btn-play")?.addEventListener("click", startWatching);
   document.getElementById("btn-title-settings")?.addEventListener("click", () => {
@@ -126,6 +130,7 @@ export function mountShell(instance: Phaser.Game): void {
     showLoot(info.loot ?? []);
   });
   instance.events.on("dojo-ready", () => {
+    fitComputerFrame(instance);
     syncOverlay();
     if (store.data.watched) {
       titleCard().hidden = true;
@@ -226,17 +231,19 @@ function shopHtml(): string {
       <button class="row-btn" data-shop="${item.id}" ${owned || locked ? "disabled" : ""}>${label}</button>
     </div>`;
   }).join("");
-  return `<div class="shop-wallet">
-    <div class="wallet-chip gold">Wallet <b>${store.data.gold}</b> coins</div>
-    <div class="wallet-chip lv">LV <b>${playerLevel}</b></div>
-    <div class="wallet-chip xp">XP <b>${store.data.exp} / ${need}</b></div>
-    <button class="pix-btn shop-confirm" id="btn-shop-confirm" type="button" ${queuedCost ? "" : "disabled"}>
-      <img src="/assets/ui/play.png" alt="" />
-      <span>${confirmLabel}</span>
-    </button>
-  </div>
-  <p class="note shop-hint">Best gear is on top. Scroll the whole shop. You can only buy a tier once you reach that level.</p>
-  <div class="grid shop-grid">${rows}</div>`;
+  return `<div class="shop-panel">
+    <div class="shop-wallet">
+      <div class="wallet-chip gold">Wallet <b>${store.data.gold}</b> coins</div>
+      <div class="wallet-chip lv">LV <b>${playerLevel}</b></div>
+      <div class="wallet-chip xp">XP <b>${store.data.exp} / ${need}</b></div>
+      <button class="pix-btn shop-confirm" id="btn-shop-confirm" type="button" ${queuedCost ? "" : "disabled"}>
+        <img src="/assets/ui/play.png" alt="" />
+        <span>${confirmLabel}</span>
+      </button>
+    </div>
+    <p class="note shop-hint">Best gear is on top. Scroll to see every prize. Buy a tier only when you reach that level.</p>
+    <div class="grid shop-grid">${rows}</div>
+  </div>`;
 }
 
 function workshopHtml(): string {
