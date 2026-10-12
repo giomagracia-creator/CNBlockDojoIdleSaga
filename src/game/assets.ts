@@ -89,6 +89,7 @@ export const IMAGES: { key: string; url: string }[] = [
   { key: "fx-shadow", url: "/assets/fx/shadow.png" },
   { key: "trophy", url: "/assets/items/flags/trophy.png" },
   { key: "rock-hit", url: "/assets/enemies/rock/hit.png" },
+  { key: "shop-dojo-belt", url: "/assets/uploads/shop/dojo-belt.png" },
 ];
 
 export function heroAnim(id: HeroId, action: "idle" | "run" | "jump" | "fall" | "hit" | "spin"): string {
