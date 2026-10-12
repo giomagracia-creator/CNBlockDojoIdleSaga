@@ -4,20 +4,23 @@ import {
   HEROES,
   RELICS,
   ROUTES,
+  SHOP_ITEMS,
   UPGRADES,
   rankFor,
   upgradeCost,
   type HeroId,
   type LootDrop,
   type RouteId,
+  type ShopItemId,
   type UpgradeId,
 } from "../game/catalog.ts";
 import { store } from "../game/save.ts";
 
-type Panel = "scroll" | "workshop" | "heroes" | "routes" | "settings";
+type Panel = "scroll" | "shop" | "workshop" | "heroes" | "routes" | "settings";
 
 type Draft = {
   upgrades: UpgradeId[];
+  shop: ShopItemId[];
   hero: HeroId;
   route: RouteId;
   music: number;
@@ -45,6 +48,7 @@ let haulStarted = 0;
 function snapshotDraft(): Draft {
   return {
     upgrades: [],
+    shop: [],
     hero: store.data.hero,
     route: store.data.route,
     music: store.data.music,
@@ -55,6 +59,7 @@ function snapshotDraft(): Draft {
 function draftDirty(): boolean {
   return (
     draft.upgrades.length > 0 ||
+    draft.shop.length > 0 ||
     draft.hero !== store.data.hero ||
     draft.route !== store.data.route ||
     draft.music !== sealedMusic ||
@@ -71,6 +76,10 @@ function queuedGold(): number {
     const already = store.data.upgrades[id] + (counts[id] ?? 0);
     gold += upgradeCost(def, already).gold;
     counts[id] = (counts[id] ?? 0) + 1;
+  }
+  for (const id of draft.shop) {
+    const item = SHOP_ITEMS.find((entry) => entry.id === id);
+    if (item) gold += item.gold;
   }
   if (!store.data.unlockedHeroes.includes(draft.hero)) gold += HEROES[draft.hero].unlock.gold;
   if (!store.data.unlockedRoutes.includes(draft.route)) gold += ROUTES[draft.route].unlockGold;
@@ -166,6 +175,7 @@ function renderMenu(): void {
     btn.classList.toggle("active", btn.getAttribute("data-panel") === openPanel);
   });
   if (openPanel === "scroll") cardBody().innerHTML = scrollHtml();
+  if (openPanel === "shop") cardBody().innerHTML = shopHtml();
   if (openPanel === "workshop") cardBody().innerHTML = workshopHtml();
   if (openPanel === "heroes") cardBody().innerHTML = heroesHtml();
   if (openPanel === "routes") cardBody().innerHTML = routesHtml();
@@ -188,6 +198,45 @@ function scrollHtml(): string {
   <p class="note">Fruit heals. Crates mint coins. Monsters grant XP.</p>
   <p class="note">Relics: ${relics}</p>
   <p class="note">Stripes ${store.data.stripes} · Kills ${store.data.kills}</p>`;
+}
+
+function shopHtml(): string {
+  const playerLevel = store.data.level;
+  const need = store.needXp();
+  const queuedCost = draft.shop.reduce((sum, id) => {
+    const item = SHOP_ITEMS.find((entry) => entry.id === id);
+    return sum + (item?.gold ?? 0);
+  }, 0);
+  const confirmLabel = queuedCost > 0 ? `CONFIRM BUY · ${queuedCost} coins` : "CONFIRM BUY";
+  const rows = SHOP_ITEMS.map((item) => {
+    const owned = store.shopOwned(item.id);
+    const queued = draft.shop.includes(item.id);
+    const unlocked = playerLevel >= item.level;
+    const locked = !owned && !unlocked;
+    let label = `Queue ${item.gold} coins`;
+    if (owned) label = "OWNED";
+    else if (locked) label = `Need LV ${item.level}`;
+    else if (queued) label = "Remove";
+    const state = owned ? "owned" : queued ? "queued" : locked ? "locked" : "";
+    return `<div class="row shop-row ${state}">
+      <div>
+        <h3><span class="tier">LV ${item.level}</span> ${item.name}</h3>
+        <p>${item.blurb}</p>
+      </div>
+      <button class="row-btn" data-shop="${item.id}" ${owned || locked ? "disabled" : ""}>${label}</button>
+    </div>`;
+  }).join("");
+  return `<div class="shop-wallet">
+    <div class="wallet-chip gold">Wallet <b>${store.data.gold}</b> coins</div>
+    <div class="wallet-chip lv">LV <b>${playerLevel}</b></div>
+    <div class="wallet-chip xp">XP <b>${store.data.exp} / ${need}</b></div>
+    <button class="pix-btn shop-confirm" id="btn-shop-confirm" type="button" ${queuedCost ? "" : "disabled"}>
+      <img src="/assets/ui/play.png" alt="" />
+      <span>${confirmLabel}</span>
+    </button>
+  </div>
+  <p class="note shop-hint">Best gear is on top. Scroll the whole shop. You can only buy a tier once you reach that level.</p>
+  <div class="grid shop-grid">${rows}</div>`;
 }
 
 function workshopHtml(): string {
@@ -267,6 +316,28 @@ function settingsHtml(): string {
 }
 
 function bindPanel(): void {
+  cardBody().querySelectorAll<HTMLButtonElement>("[data-shop]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.shop as ShopItemId;
+      const item = SHOP_ITEMS.find((entry) => entry.id === id);
+      if (!item) return;
+      if (store.shopOwned(id) || store.data.level < item.level) {
+        audio.deny();
+        return;
+      }
+      if (draft.shop.includes(id)) {
+        draft.shop = draft.shop.filter((queued) => queued !== id);
+      } else {
+        draft.shop.push(id);
+      }
+      audio.click();
+      renderMenu();
+    });
+  });
+  document.getElementById("btn-shop-confirm")?.addEventListener("click", () => {
+    audio.click();
+    applyDraft();
+  });
   cardBody().querySelectorAll<HTMLButtonElement>("[data-up]").forEach((btn) => {
     btn.addEventListener("click", () => {
       draft.upgrades.push(btn.dataset.up as UpgradeId);
@@ -319,13 +390,16 @@ function bindPanel(): void {
 function paintDraft(): void {
   const dirty = draftDirty();
   applyBtn().disabled = !dirty;
+  const label = applyBtn().querySelector("span");
+  if (label) label.textContent = openPanel === "shop" || draft.shop.length ? "CONFIRM BUY" : "APPLY";
   const cost = queuedGold();
   if (!dirty) {
     draftNote().textContent = "No unsealed changes.";
     draftNote().classList.remove("flash-seal");
     return;
   }
-  draftNote().textContent = cost > 0 ? `Unsealed · ${cost}g on APPLY` : "Unsealed changes · APPLY to keep them";
+  draftNote().textContent =
+    cost > 0 ? `Unsealed · ${cost} coins on CONFIRM` : "Unsealed changes · CONFIRM / APPLY to keep them";
 }
 
 function applyDraft(): void {
@@ -336,6 +410,14 @@ function applyDraft(): void {
     audio.deny();
     draftNote().textContent = "Not enough coins to seal this scroll.";
     return;
+  }
+  for (const id of draft.shop) {
+    if (!store.buyShop(id)) {
+      audio.deny();
+      draftNote().textContent = "Could not buy every queued shop item.";
+      renderMenu();
+      return;
+    }
   }
   for (const id of draft.upgrades) {
     if (!store.buyUpgrade(id)) {

@@ -62,11 +62,12 @@ Chunks ahead of the camera alternate **farm** and **fight** so half the watch ti
 | Dock | Settings, Levels, Play-style icons | Workshop, Heroes, Routes, Settings |
 | Heroes | character idle sheets | Unlock / select Mask Dude, Ninja Frog, Pink Man |
 | Routes | level number tiles 01–03 | Switch the live biome. Locked routes stay locked. |
+| Shop | 30 coin tiers | Best gear on top. Scroll every prize. Buy only at your level. CONFIRM BUY saves. |
 | Workshop | box sprites as panel frames | Buy ATK, HP, interval, crit, magnet, crate pay |
 | Settings | Volume, Close | Music / SFX sliders |
 | HUD | fruit icons + HP | Read-only. The movie stays on screen. |
 
-Opening a drawer covers the lower third only. The student keeps running above it.
+The floating scroll fills about **75%** of the stage so kids can read the type. The student keeps running behind it.
 
 ---
 

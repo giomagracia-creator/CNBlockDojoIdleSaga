@@ -2,6 +2,7 @@ import {
   HEROES,
   RELICS,
   ROUTES,
+  SHOP_ITEMS,
   UPGRADES,
   rollLevelLoot,
   upgradeCost,
@@ -11,6 +12,7 @@ import {
   type LootDrop,
   type RelicId,
   type RouteId,
+  type ShopItemId,
   type UpgradeId,
 } from "./catalog.ts";
 
@@ -21,6 +23,7 @@ export type SaveData = {
   level: number;
   exp: number;
   relics: RelicId[];
+  shopOwned: ShopItemId[];
   upgrades: Record<UpgradeId, number>;
   unlockedHeroes: HeroId[];
   unlockedRoutes: RouteId[];
@@ -51,6 +54,7 @@ function defaults(): SaveData {
     level: 1,
     exp: 0,
     relics: [],
+    shopOwned: [],
     upgrades: {
       ironStomp: 0,
       fruitCake: 0,
@@ -107,6 +111,7 @@ class Store {
         ...parsed,
         upgrades: { ...defaults().upgrades, ...parsed.upgrades },
         relics: parsed.relics ?? [],
+        shopOwned: parsed.shopOwned ?? [],
       };
       this.applyOffline();
     } catch {
@@ -133,15 +138,18 @@ class Store {
     const lv = this.data.level - 1;
     const relics = this.data.relics;
     const count = (id: RelicId) => relics.filter((r) => r === id).length;
+    const shop = SHOP_ITEMS.filter((item) => this.data.shopOwned.includes(item.id));
+    const shopSum = (key: keyof (typeof shop)[number]["bonus"]) =>
+      shop.reduce((sum, item) => sum + (item.bonus[key] ?? 0), 0);
     return {
-      atk: Math.round((hero.atk + u.ironStomp * 2.2 + lv * 1.3 + count("ironCharm") * 2) * 10) / 10,
-      maxHp: Math.round(hero.hp + u.fruitCake * 6 + lv * 4 + count("heartSeed") * 6),
-      interval: Math.max(0.36, hero.interval - u.quickFeet * 0.045),
-      speed: hero.speed + u.quickFeet * 4 + count("swiftLeaf") * 6,
-      crit: Math.min(0.5, hero.crit + u.luckyPeel * 0.035 + count("luckyPit") * 0.04),
-      farm: hero.farm + u.crateCrew * 0.08,
-      magnet: 18 + u.magnet * 10 + count("magnetRind") * 8,
-      crateGold: 6 + u.crateCrew * 2 + count("coinBrand") * 2,
+      atk: Math.round((hero.atk + u.ironStomp * 2.2 + lv * 1.3 + count("ironCharm") * 2 + shopSum("atk")) * 10) / 10,
+      maxHp: Math.round(hero.hp + u.fruitCake * 6 + lv * 4 + count("heartSeed") * 6 + shopSum("hp")),
+      interval: Math.max(0.32, hero.interval - u.quickFeet * 0.045 - shopSum("interval")),
+      speed: hero.speed + u.quickFeet * 4 + count("swiftLeaf") * 6 + shopSum("speed"),
+      crit: Math.min(0.55, hero.crit + u.luckyPeel * 0.035 + count("luckyPit") * 0.04 + shopSum("crit")),
+      farm: hero.farm + u.crateCrew * 0.08 + shopSum("farm"),
+      magnet: 18 + u.magnet * 10 + count("magnetRind") * 8 + shopSum("magnet"),
+      crateGold: 6 + u.crateCrew * 2 + count("coinBrand") * 2 + shopSum("crateGold"),
     };
   }
 
@@ -178,6 +186,22 @@ class Store {
     }
     if (emit) this.emit();
     return loot;
+  }
+
+  buyShop(id: ShopItemId): boolean {
+    const item = SHOP_ITEMS.find((entry) => entry.id === id);
+    if (!item) return false;
+    if (this.data.shopOwned.includes(id)) return false;
+    if (this.data.level < item.level) return false;
+    if (!this.canPay({ gold: item.gold })) return false;
+    this.data.gold -= item.gold;
+    this.data.shopOwned.push(id);
+    this.emit();
+    return true;
+  }
+
+  shopOwned(id: ShopItemId): boolean {
+    return this.data.shopOwned.includes(id);
   }
 
   buyUpgrade(id: UpgradeId): boolean {

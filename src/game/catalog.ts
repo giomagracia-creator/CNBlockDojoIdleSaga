@@ -35,6 +35,38 @@ export type RelicId =
   | "magnetRind"
   | "coinBrand";
 
+export type ShopItemId =
+  | "grandmasterBrand"
+  | "immortalHeartwood"
+  | "thunderGetas"
+  | "fateKernel"
+  | "coinTyphoon"
+  | "ironCrown"
+  | "oakHeart"
+  | "galeSash"
+  | "luckyCore"
+  | "magnetOrchard"
+  | "steelTabi"
+  | "thickBark"
+  | "windRibbon"
+  | "splitPit"
+  | "blockDividend"
+  | "bronzeFist"
+  | "melonGuard"
+  | "quickSandals"
+  | "cherryLuck"
+  | "peelPull"
+  | "ironChip"
+  | "seedCharm"
+  | "leafWrap"
+  | "tinyPit"
+  | "crateNail"
+  | "practiceStone"
+  | "softPad"
+  | "dustGetas"
+  | "luckyCrumb"
+  | "woodenCoin";
+
 export type Cost = { gold: number };
 
 export type HeroDef = {
@@ -93,6 +125,26 @@ export type RelicDef = {
   id: RelicId;
   name: string;
   blurb: string;
+};
+
+export type ShopBonus = {
+  atk?: number;
+  hp?: number;
+  speed?: number;
+  crit?: number;
+  interval?: number;
+  magnet?: number;
+  crateGold?: number;
+  farm?: number;
+};
+
+export type ShopItemDef = {
+  id: ShopItemId;
+  name: string;
+  blurb: string;
+  level: number;
+  gold: number;
+  bonus: ShopBonus;
 };
 
 export type LootDrop = {
@@ -381,6 +433,250 @@ export const RELICS: Record<RelicId, RelicDef> = {
 };
 
 export const RELIC_IDS = Object.keys(RELICS) as RelicId[];
+
+/** Best gear first (LV 30). Worst starter trinket last (LV 1). */
+export const SHOP_ITEMS: ShopItemDef[] = [
+  {
+    id: "grandmasterBrand",
+    name: "Grandmaster Brand",
+    blurb: "The dojo’s finest iron. +12 ATK and +6 coins per crate.",
+    level: 30,
+    gold: 2600,
+    bonus: { atk: 12, crateGold: 6 },
+  },
+  {
+    id: "immortalHeartwood",
+    name: "Immortal Heartwood",
+    blurb: "A trunk that never splits. +40 max HP.",
+    level: 29,
+    gold: 2300,
+    bonus: { hp: 40 },
+  },
+  {
+    id: "thunderGetas",
+    name: "Thunder Getas",
+    blurb: "Lightning on the mat. +24 speed and faster stomps.",
+    level: 28,
+    gold: 2100,
+    bonus: { speed: 24, interval: 0.12 },
+  },
+  {
+    id: "fateKernel",
+    name: "Fate Kernel",
+    blurb: "Every hop finds a seam. +18% crit.",
+    level: 27,
+    gold: 1950,
+    bonus: { crit: 0.18 },
+  },
+  {
+    id: "coinTyphoon",
+    name: "Coin Typhoon",
+    blurb: "Crates explode into a shower. +8 crate coins and richer farm.",
+    level: 26,
+    gold: 1800,
+    bonus: { crateGold: 8, farm: 0.35 },
+  },
+  {
+    id: "ironCrown",
+    name: "Iron Crown",
+    blurb: "A sensei’s circlet. +8 ATK.",
+    level: 25,
+    gold: 1500,
+    bonus: { atk: 8 },
+  },
+  {
+    id: "oakHeart",
+    name: "Oak Heart",
+    blurb: "Dense as a training post. +28 max HP.",
+    level: 24,
+    gold: 1350,
+    bonus: { hp: 28 },
+  },
+  {
+    id: "galeSash",
+    name: "Gale Sash",
+    blurb: "Wind in the wrap. +16 run speed.",
+    level: 23,
+    gold: 1220,
+    bonus: { speed: 16 },
+  },
+  {
+    id: "luckyCore",
+    name: "Lucky Core",
+    blurb: "A pit that always lands right. +10% crit.",
+    level: 22,
+    gold: 1100,
+    bonus: { crit: 0.1 },
+  },
+  {
+    id: "magnetOrchard",
+    name: "Magnet Orchard",
+    blurb: "Whole groves drift in. Huge fruit pull.",
+    level: 21,
+    gold: 980,
+    bonus: { magnet: 36 },
+  },
+  {
+    id: "steelTabi",
+    name: "Steel Tabi",
+    blurb: "Toes of iron. +6 ATK.",
+    level: 20,
+    gold: 820,
+    bonus: { atk: 6 },
+  },
+  {
+    id: "thickBark",
+    name: "Thick Bark",
+    blurb: "A second rind. +20 max HP.",
+    level: 19,
+    gold: 740,
+    bonus: { hp: 20 },
+  },
+  {
+    id: "windRibbon",
+    name: "Wind Ribbon",
+    blurb: "A trail of leaves. +12 speed.",
+    level: 18,
+    gold: 660,
+    bonus: { speed: 12 },
+  },
+  {
+    id: "splitPit",
+    name: "Split Pit",
+    blurb: "Two chances in one hop. +7% crit.",
+    level: 17,
+    gold: 590,
+    bonus: { crit: 0.07 },
+  },
+  {
+    id: "blockDividend",
+    name: "Block Dividend",
+    blurb: "Training posts pay extra. +4 coins per crate.",
+    level: 16,
+    gold: 520,
+    bonus: { crateGold: 4 },
+  },
+  {
+    id: "bronzeFist",
+    name: "Bronze Fist",
+    blurb: "A heavier landing. +4 ATK.",
+    level: 15,
+    gold: 430,
+    bonus: { atk: 4 },
+  },
+  {
+    id: "melonGuard",
+    name: "Melon Guard",
+    blurb: "A snack that is also a shield. +14 max HP.",
+    level: 14,
+    gold: 380,
+    bonus: { hp: 14 },
+  },
+  {
+    id: "quickSandals",
+    name: "Quick Sandals",
+    blurb: "Shorter steps. +8 speed.",
+    level: 13,
+    gold: 330,
+    bonus: { speed: 8 },
+  },
+  {
+    id: "cherryLuck",
+    name: "Cherry Luck",
+    blurb: "A pair of lucky stones. +5% crit.",
+    level: 12,
+    gold: 290,
+    bonus: { crit: 0.05 },
+  },
+  {
+    id: "peelPull",
+    name: "Peel Pull",
+    blurb: "Snacks drift closer. +18 fruit pull.",
+    level: 11,
+    gold: 250,
+    bonus: { magnet: 18 },
+  },
+  {
+    id: "ironChip",
+    name: "Iron Chip",
+    blurb: "A shard of the brand. +3 ATK.",
+    level: 10,
+    gold: 190,
+    bonus: { atk: 3 },
+  },
+  {
+    id: "seedCharm",
+    name: "Seed Charm",
+    blurb: "A pocket heart. +10 max HP.",
+    level: 9,
+    gold: 160,
+    bonus: { hp: 10 },
+  },
+  {
+    id: "leafWrap",
+    name: "Leaf Wrap",
+    blurb: "Light on the ankle. +6 speed.",
+    level: 8,
+    gold: 140,
+    bonus: { speed: 6 },
+  },
+  {
+    id: "tinyPit",
+    name: "Tiny Pit",
+    blurb: "A little luck. +3% crit.",
+    level: 7,
+    gold: 120,
+    bonus: { crit: 0.03 },
+  },
+  {
+    id: "crateNail",
+    name: "Crate Nail",
+    blurb: "Splits posts cleaner. +2 coins per crate.",
+    level: 6,
+    gold: 100,
+    bonus: { crateGold: 2 },
+  },
+  {
+    id: "practiceStone",
+    name: "Practice Stone",
+    blurb: "The first real weight. +2 ATK.",
+    level: 5,
+    gold: 80,
+    bonus: { atk: 2 },
+  },
+  {
+    id: "softPad",
+    name: "Soft Pad",
+    blurb: "A kinder knockdown. +6 max HP.",
+    level: 4,
+    gold: 60,
+    bonus: { hp: 6 },
+  },
+  {
+    id: "dustGetas",
+    name: "Dust Getas",
+    blurb: "Old sandals with a little hustle. +4 speed.",
+    level: 3,
+    gold: 45,
+    bonus: { speed: 4 },
+  },
+  {
+    id: "luckyCrumb",
+    name: "Lucky Crumb",
+    blurb: "A leftover pit. +2% crit.",
+    level: 2,
+    gold: 35,
+    bonus: { crit: 0.02 },
+  },
+  {
+    id: "woodenCoin",
+    name: "Wooden Coin",
+    blurb: "The starter token. +1 coin per crate.",
+    level: 1,
+    gold: 25,
+    bonus: { crateGold: 1 },
+  },
+];
 
 export const FRUIT_HEAL: Record<FruitId, number> = {
   apple: 5,

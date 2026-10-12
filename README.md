@@ -19,7 +19,8 @@ Then open [http://127.0.0.1:4721](http://127.0.0.1:4721). Press **Watch** once s
 - **Fruit** — heals HP.
 - **Crates** — drop coins.
 - **Monsters** — grant XP. Level-ups play a fanfare and open a loot chest.
-- **Scroll** — floating card. Queue workshop arts, heroes, routes, and sound, then **APPLY**.
+- **Scroll** — big floating card (~75% of the stage). Queue workshop arts, shop gear, heroes, routes, and sound, then **APPLY**.
+- **Shop** — 30 coin items, best at the top. Scroll the whole catalog. Buy a tier only when you reach that level. **CONFIRM BUY** writes the purchase to your save. The shop shows your wallet coins and XP.
 - Progress saves in `localStorage`.
 
 Routes in this slice: Green Grove, Pink Orchard, Brown Hollow. Students: Mask Dude, Ninja Frog, Pink Man.
