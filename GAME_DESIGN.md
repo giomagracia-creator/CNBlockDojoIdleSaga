@@ -4,7 +4,7 @@ A watch-only side-scrolling auto-battle / auto-farm idle game.
 
 You never steer, jump, or attack. A dojo student runs an endless route, smashes training blocks, harvests fruit, and stomps Pixel Frog creatures on their own. You only touch **menu overlays**: pick a hero, pick a route, spend loot on upgrades, and tweak sound. The stage never stops.
 
-Visual language comes from [Pixel Frog Pixel Adventure 1 + 2](https://github.com/moonbitlang/pixel-adventure.mbt) (CC0). Audio is an in-engine chiptune + SFX suite (the Pixel Frog tree is graphics only).
+Visual language comes from [Pixel Frog Pixel Adventure 1 + 2](https://github.com/moonbitlang/pixel-adventure.mbt) (CC0). Audio is an in-engine chiptune + SFX suite (the Pixel Frog tree is graphics only). New generated pixel art is dropped in `public/assets/uploads/` so Grok can find it without touching the vendored pack.
 
 ---
 

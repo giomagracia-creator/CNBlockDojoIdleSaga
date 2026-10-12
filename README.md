@@ -32,4 +32,6 @@ Routes in this slice: Green Grove, Pink Orchard, Brown Hollow. Students: Mask Du
 - Thaleah Fat by Rick Hoppmann
 - Music and hits are generated in the browser (Web Audio)
 
+**Drop new pixel art in `public/assets/uploads/`.** That is the folder Grok scans. Put unsorted files in `inbox/`, or use `heroes/`, `enemies/`, `items/`, `shop/`, `ui/`, `bg/`, `fx/`. List each file in `public/assets/uploads/INDEX.md`. Do not overwrite the vendored Pixel Frog folders.
+
 See `GAME_DESIGN.md` for the locked design and `NOTICE` for license text.

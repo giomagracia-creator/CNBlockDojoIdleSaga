@@ -1,0 +1,6 @@
+---
+description: Where new pixel art uploads live so Grok can find them
+alwaysApply: true
+---
+
+New player-generated pixel assets are in `public/assets/uploads/` (see `AGENTS.md` and `public/assets/uploads/README.md`). Scan `inbox/`, `heroes/`, `enemies/`, `items/`, `shop/`, `ui/`, `bg/`, `fx/`, and `INDEX.md`. Do not overwrite vendored Pixel Frog files under `public/assets/heroes` and siblings. Wire new PNGs through `src/game/assets.ts` at `/assets/uploads/...`.
