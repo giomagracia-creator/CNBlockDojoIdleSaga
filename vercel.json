@@ -1,0 +1,16 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://*.vercel.app"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/sensei", "destination": "/sensei.html" }
+  ]
+}

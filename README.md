@@ -13,6 +13,8 @@ npm run dev
 
 Then open [http://127.0.0.1:4721](http://127.0.0.1:4721). Press **Watch** once so the browser will allow sound.
 
+The **pumpkin patch** is the Dojo TV stage: a class of 16 harvests, mines, and ducks meteors. Sensei steers them at [http://127.0.0.1:4721/sensei](http://127.0.0.1:4721/sensei). On Vercel the game only plays inside the TV iframe unless you add `?tv=1`.
+
 ## How it works
 
 - **Watch** — Mask Dude (or a later student) auto-runs the current route.

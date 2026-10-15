@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { VIEW_H, VIEW_W } from "./catalog.ts";
 import { BootScene } from "./scenes/BootScene.ts";
 import { DojoScene } from "./scenes/DojoScene.ts";
+import { FarmScene } from "./scenes/FarmScene.ts";
 
 export function createGame(parent: HTMLElement): Phaser.Game {
   return new Phaser.Game({
@@ -20,6 +21,6 @@ export function createGame(parent: HTMLElement): Phaser.Game {
       expandParent: false,
       fullscreenTarget: parent,
     },
-    scene: [BootScene, DojoScene],
+    scene: [BootScene, FarmScene, DojoScene],
   });
 }

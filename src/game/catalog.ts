@@ -439,7 +439,7 @@ export const SHOP_ITEMS: ShopItemDef[] = [
   {
     id: "grandmasterBrand",
     name: "Grandmaster Brand",
-    blurb: "The dojo’s finest iron. +12 ATK and +6 coins per crate.",
+    blurb: "The golden dojo belt. +12 ATK and +6 coins per crate.",
     level: 30,
     gold: 2600,
     bonus: { atk: 12, crateGold: 6 },

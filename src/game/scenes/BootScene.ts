@@ -35,6 +35,6 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     registerAnims(this);
-    this.scene.start("dojo");
+    this.scene.start("farm");
   }
 }

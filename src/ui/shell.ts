@@ -39,6 +39,7 @@ const draftNote = () => document.getElementById("draft-note") as HTMLElement;
 
 let openPanel: Panel = "scroll";
 let menuOpen = false;
+let game: Phaser.Game | null = null;
 let draft = snapshotDraft();
 let sealedMusic = store.data.music;
 let sealedSfx = store.data.sfx;
@@ -88,6 +89,7 @@ function queuedGold(): number {
 }
 
 export function mountShell(instance: Phaser.Game): void {
+  game = instance;
   overlay().hidden = false;
   lootCard().hidden = true;
   const layout = () => {
@@ -139,7 +141,29 @@ export function mountShell(instance: Phaser.Game): void {
       audio.startTheme(ROUTES[store.data.route].music);
     }
   });
+  instance.events.on("farm-ready", () => {
+    fitComputerFrame(instance);
+    syncOverlay();
+    if (store.data.watched) {
+      titleCard().hidden = true;
+      menuBtn().hidden = false;
+      audio.unlock();
+      audio.startTheme(ROUTES[store.data.route].music);
+    }
+  });
   renderHud();
+}
+
+function showScene(key: "farm" | "dojo"): void {
+  if (!game) return;
+  if (game.scene.isActive(key)) return;
+  if (key === "farm") {
+    if (game.scene.isActive("dojo")) game.scene.stop("dojo");
+    if (!game.scene.isActive("farm")) game.scene.start("farm");
+  } else {
+    if (game.scene.isActive("farm")) game.scene.stop("farm");
+    if (!game.scene.isActive("dojo")) game.scene.start("dojo");
+  }
 }
 
 function startWatching(): void {
@@ -200,9 +224,15 @@ function scrollHtml(): string {
     <div class="stat">CRIT <b>${Math.round(s.crit * 100)}%</b></div>
     <div class="stat">SPD <b>${Math.round(s.speed)}</b></div>
   </div>
+  <p class="note">Pumpkin patch is the Dojo TV stage. Class of 16 farms, mines, and ducks meteors.</p>
   <p class="note">Fruit heals. Crates mint coins. Monsters grant XP.</p>
   <p class="note">Relics: ${relics}</p>
-  <p class="note">Stripes ${store.data.stripes} · Kills ${store.data.kills}</p>`;
+  <p class="note">Stripes ${store.data.stripes} · Kills ${store.data.kills}</p>
+  <div class="actions scene-switch">
+    <button class="row-btn" data-scene="farm" type="button">Pumpkin patch</button>
+    <button class="row-btn" data-scene="dojo" type="button">Training run</button>
+    <a class="row-btn" href="/sensei">Sensei portal</a>
+  </div>`;
 }
 
 function shopHtml(): string {
@@ -223,7 +253,11 @@ function shopHtml(): string {
     else if (locked) label = `Need LV ${item.level}`;
     else if (queued) label = "Remove";
     const state = owned ? "owned" : queued ? "queued" : locked ? "locked" : "";
+    const prize = item.id === "grandmasterBrand"
+      ? `<img class="prize-art" src="/assets/uploads/shop/dojo-belt.png" alt="" />`
+      : "";
     return `<div class="row shop-row ${state}">
+      ${prize}
       <div>
         <h3><span class="tier">LV ${item.level}</span> ${item.name}</h3>
         <p>${item.blurb}</p>
@@ -323,6 +357,13 @@ function settingsHtml(): string {
 }
 
 function bindPanel(): void {
+  cardBody().querySelectorAll<HTMLButtonElement>("[data-scene]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.scene as "farm" | "dojo";
+      audio.click();
+      showScene(key);
+    });
+  });
   cardBody().querySelectorAll<HTMLButtonElement>("[data-shop]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.shop as ShopItemId;

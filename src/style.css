@@ -523,3 +523,107 @@ input[type="range"] {
 .flash-seal {
   color: var(--mint) !important;
 }
+
+#iframe-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: #120c18;
+  text-align: center;
+}
+
+#iframe-gate[hidden] {
+  display: none !important;
+}
+
+#iframe-gate h1 {
+  margin: 0;
+  font-size: 42px;
+}
+
+#iframe-gate .lede {
+  max-width: 520px;
+}
+
+.prize-art {
+  width: 48px;
+  height: 32px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+
+.scene-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.scene-switch .row-btn {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sensei-body {
+  overflow: auto;
+  background: #07050c;
+}
+
+#sensei {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.sensei-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ninja-card {
+  background: var(--panel);
+  border: 3px solid #3b3148;
+  padding: 10px 12px;
+}
+
+.ninja-card.locked {
+  border-color: #8a5a00;
+}
+
+.ninja-card h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.ninja-card .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ninja-card button {
+  font-family: inherit;
+  font-size: 12px;
+  background: #2a2030;
+  color: var(--paper);
+  border: 2px solid #5a4a38;
+  padding: 4px 8px;
+  cursor: pointer;
+}
