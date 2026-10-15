@@ -75,12 +75,13 @@ export class FarmScene extends Phaser.Scene {
     }
 
     this.banner = this.add
-      .text(8, 6, "PUMPKIN PATCH  ·  CLASS OF 16", {
+      .text(8, 6, "PUMPKIN PATCH\nCLASS OF 16", {
         fontFamily: "Thaleah, monospace",
         fontSize: "8px",
         color: "#f4efe4",
       })
-      .setDepth(20);
+      .setDepth(20)
+      .setLineSpacing(2);
 
     this.plots = [];
     for (let i = 0; i < 12; i++) {
@@ -165,7 +166,7 @@ export class FarmScene extends Phaser.Scene {
     const pumpkins = this.state.students.reduce((n, s) => n + s.pumpkins, 0);
     const ore = this.state.students.reduce((n, s) => n + s.ore, 0);
     this.banner.setText(
-      `PUMPKIN PATCH  ·  CLASS OF 16  ·  ${pumpkins} gourds  ·  ${ore} ore  ·  meteors ${this.state.meteorCount}`,
+      `PATCH  CLASS OF 16\n${pumpkins} gourds  ${ore} ore  M${this.state.meteorCount}`,
     );
   }
 
